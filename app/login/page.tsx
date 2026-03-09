@@ -101,10 +101,18 @@ export default function LoginPage() {
                         </Button>
                     </div>
 
-                    <div className="text-center text-sm">
-                        <Link href="/" className="font-medium text-gray-600 hover:text-gray-500 dark:text-gray-400">
-                            ← Volver al inicio
-                        </Link>
+                    <div className="text-center text-sm space-y-2">
+                        <div>
+                            <span className="text-gray-500 dark:text-gray-400">¿No tienes cuenta? </span>
+                            <Link href="/register" className="font-medium text-gray-900 hover:text-gray-700 dark:text-white dark:hover:text-gray-300">
+                                Regístrate
+                            </Link>
+                        </div>
+                        <div>
+                            <Link href="/" className="font-medium text-gray-600 hover:text-gray-500 dark:text-gray-400">
+                                ← Volver al inicio
+                            </Link>
+                        </div>
                     </div>
                 </form>
             </div>

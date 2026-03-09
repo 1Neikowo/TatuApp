@@ -1,34 +1,23 @@
 import Link from 'next/link';
 import { Button } from '@/components/ui/Button';
 import { ModeToggle } from '@/components/mode-toggle';
-import { createServerClient } from '@supabase/ssr';
-import { cookies } from 'next/headers';
-import SignOutButton from './SignOutButton'; // New client component for sign out
+import { createServerSupabase } from '@/lib/supabase-server';
+import SignOutButton from './SignOutButton';
 
 export const Navbar = async () => {
-    const cookieStore = await cookies();
-    const supabase = createServerClient(
-        process.env.NEXT_PUBLIC_SUPABASE_URL!,
-        process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
-        {
-            cookies: {
-                getAll() {
-                    return cookieStore.getAll();
-                },
-                setAll(cookiesToSet) {
-                    try {
-                        cookiesToSet.forEach(({ name, value, options }) =>
-                            cookieStore.set(name, value, options)
-                        )
-                    } catch {
-                        // The `setAll` method was called from a Server Component.
-                    }
-                },
-            },
-        }
-    );
-
+    const supabase = await createServerSupabase();
     const { data: { user } } = await supabase.auth.getUser();
+
+    // Get user profile to check role
+    let perfil = null;
+    if (user) {
+        const { data } = await supabase
+            .from('perfiles')
+            .select('rol, nombre_completo')
+            .eq('id', user.id)
+            .single();
+        perfil = data;
+    }
 
     return (
         <header className="sticky top-0 z-50 w-full border-b border-border bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
@@ -40,9 +29,21 @@ export const Navbar = async () => {
                     <Link href="/" className="transition-colors hover:text-gray-900/80 text-gray-900 dark:text-white dark:hover:text-gray-200">
                         Explorar
                     </Link>
-                    <Link href={user ? "/dashboard" : "/login"} className="transition-colors hover:text-gray-900/80 text-gray-500 dark:text-gray-400 dark:hover:text-gray-200">
-                        Soy Tatuador
-                    </Link>
+                    {user && perfil?.rol === 'tatuador' && (
+                        <Link href="/dashboard" className="transition-colors hover:text-gray-900/80 text-gray-500 dark:text-gray-400 dark:hover:text-gray-200">
+                            Mi Panel
+                        </Link>
+                    )}
+                    {user && perfil?.rol === 'cliente' && (
+                        <Link href="/mis-cotizaciones" className="transition-colors hover:text-gray-900/80 text-gray-500 dark:text-gray-400 dark:hover:text-gray-200">
+                            Mis Cotizaciones
+                        </Link>
+                    )}
+                    {!user && (
+                        <Link href="/login" className="transition-colors hover:text-gray-900/80 text-gray-500 dark:text-gray-400 dark:hover:text-gray-200">
+                            Soy Tatuador
+                        </Link>
+                    )}
                 </nav>
                 <div className="flex items-center gap-4">
                     <ModeToggle />

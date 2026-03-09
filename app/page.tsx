@@ -1,12 +1,15 @@
 import { ArtistCard } from '@/components/ui/ArtistCard';
-import { createClient } from '@/lib/supabase';
-import { Artist } from '@/types';
+import { createServerSupabase } from '@/lib/supabase-server';
+import { Perfil } from '@/types';
 
-export const revalidate = 0; // Disable caching for now to see updates immediately
+export const revalidate = 0;
 
 export default async function Home() {
-  const supabase = createClient();
-  const { data: artists } = await supabase.from('artists').select('*');
+  const supabase = await createServerSupabase();
+  const { data: tatuadores } = await supabase
+    .from('perfiles')
+    .select('*')
+    .eq('rol', 'tatuador');
 
   return (
     <div className="container mx-auto px-4 py-8">
@@ -20,10 +23,10 @@ export default async function Home() {
       </section>
 
       <section className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-        {artists?.map((artist) => (
-          <ArtistCard key={artist.id} artist={artist as Artist} />
+        {tatuadores?.map((t) => (
+          <ArtistCard key={t.id} artist={t as Perfil} />
         ))}
-        {(!artists || artists.length === 0) && (
+        {(!tatuadores || tatuadores.length === 0) && (
           <p className="col-span-full text-center text-gray-500 dark:text-gray-400">
             No se encontraron tatuadores registrados.
           </p>
