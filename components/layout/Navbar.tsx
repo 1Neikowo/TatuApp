@@ -3,6 +3,7 @@ import { Button } from '@/components/ui/Button';
 import { ModeToggle } from '@/components/mode-toggle';
 import { createServerSupabase } from '@/lib/supabase-server';
 import SignOutButton from './SignOutButton';
+import MobileNav from './MobileNav';
 
 export const Navbar = async () => {
     const supabase = await createServerSupabase();
@@ -22,10 +23,13 @@ export const Navbar = async () => {
     return (
         <header className="sticky top-0 z-50 w-full border-b border-border bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
             <div className="container mx-auto flex h-16 items-center justify-between px-4">
+                {/* Logo */}
                 <Link href="/" className="flex items-center space-x-2">
                     <span className="text-xl font-bold tracking-tight dark:text-white">TATUAPP</span>
                 </Link>
-                <nav className="flex items-center gap-6 text-sm font-medium">
+
+                {/* Desktop Nav - hidden on mobile */}
+                <nav className="hidden items-center gap-6 text-sm font-medium md:flex">
                     <Link href="/" className="transition-colors hover:text-gray-900/80 text-gray-900 dark:text-white dark:hover:text-gray-200">
                         Explorar
                     </Link>
@@ -45,7 +49,9 @@ export const Navbar = async () => {
                         </Link>
                     )}
                 </nav>
-                <div className="flex items-center gap-4">
+
+                {/* Desktop Actions - hidden on mobile */}
+                <div className="hidden items-center gap-4 md:flex">
                     <ModeToggle />
                     {user ? (
                         <SignOutButton />
@@ -56,6 +62,12 @@ export const Navbar = async () => {
                             </Button>
                         </Link>
                     )}
+                </div>
+
+                {/* Mobile: Theme toggle + Hamburger */}
+                <div className="flex items-center gap-2 md:hidden">
+                    <ModeToggle />
+                    <MobileNav isLoggedIn={!!user} rol={perfil?.rol || null} />
                 </div>
             </div>
         </header>
